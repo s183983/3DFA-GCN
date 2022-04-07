@@ -10,22 +10,24 @@ import math
 import time
 import numpy as np
 from scipy import io
-import torch.optim as optim
 import torch
+import torch.nn as nn
+import torch.optim as optim
 from torch.autograd import Variable
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 from torch.optim.lr_scheduler import CosineAnnealingLR, StepLR
 
-from init import *
+import init
 from My_args import parser
-from augmentations import *
-from dataset import FaceLandmarkData
+import augmentations as aug
+from dataset import FaceLandmarkData, MeshDataset
 from loss import AdaptiveWingLoss
 from util import main_sample
 from PAConv_model import PAConv
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+root = 'C:/Users/lowes/OneDrive/Skrivebord/DTU/8_Semester/Advaced_Geometric_DL/BU_3DFE_3DHeatmaps_crop_2/'
 
 def train(args):
     writer = SummaryWriter('runs/3D_face_alignment')
@@ -37,17 +39,23 @@ def train(args):
     test_size = len(FaceLandmark) - train_size
     torch.manual_seed(args.dataset_seed)
     # Prepare the dateset and dataloader 
-    train_dataset, test_dataset = torch.utils.data.random_split(FaceLandmark, [train_size, test_size])
-    train_loader = DataLoader(train_dataset, num_workers=1, batch_size=args.batch_size, shuffle=True, drop_last=True)
-    test_loader = DataLoader(test_dataset, num_workers=1, batch_size=args.test_batch_size, shuffle=True, drop_last=True)
+    # train_dataset, test_dataset = torch.utils.data.random_split(FaceLandmark, [train_size, test_size])
+    # train_loader = DataLoader(train_dataset, num_workers=1, batch_size=args.batch_size, shuffle=True, drop_last=True)
+    # test_loader = DataLoader(test_dataset, num_workers=1, batch_size=args.test_batch_size, shuffle=True, drop_last=True)
+    
+    train_set = MeshDataset(root,"train")
+    train_loader = DataLoader(train_set, batch_size=args.batch_size, shuffle=True, drop_last=True)
+    
+    val_set = MeshDataset(root,"val")
+    val_loader = DataLoader(val_set, batch_size=args.batch_size, shuffle=True, drop_last=True)
     # data argument
-    ScaleAndTranslate = PointcloudScaleAndTranslate()
+    ScaleAndTranslate = aug.PointcloudScaleAndTranslate()
     MOMENTUM_ORIGINAL = 0.1
     MOMENTUM_DECCAY = 0.5
 
     # select a model to train
     model = PAConv(args, 8).to(device)   # 68 in FaceScape; 8 in BU-3DFE and FRGC
-    model.apply(weight_init)
+    model.apply(init.weight_init)
     model = nn.DataParallel(model)
 
     print('let us use', torch.cuda.device_count(), 'GPUs')
@@ -72,12 +80,12 @@ def train(args):
         model.train()
         for point, landmark, seg in train_loader:
             seg = torch.where(torch.isnan(seg), torch.full_like(seg, 0), seg)
-            iters = iters + 11
+            iters = iters + 1
             if args.no_cuda == False:
                 point = point.to(device)                   # point: (Batch * num_point * num_dim)
                 landmark = landmark.to(device)             # landmark : (Batch * landmark * num_dim)
                 seg = seg.to(device)                       # seg: (Batch * point_num * landmark)
-            point_normal = normalize_data(point)           # point_normal : (Batch * num_point * num_dim)
+            point_normal = aug.normalize_data(point)           # point_normal : (Batch * num_point * num_dim)
             point_normal = ScaleAndTranslate(point_normal)
             opt.zero_grad()
             point_normal = point_normal.permute(0, 2, 1)   # point : (batch * num_dim * num_point)
@@ -105,7 +113,7 @@ def train(args):
 if __name__ == "__main__":
     # Training settings
     args = parser.parse_args()
-    _init_()
+    init._init_()
     args.cuda = not args.no_cuda and torch.cuda.is_available()
     train(args)
 
