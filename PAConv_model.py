@@ -3,7 +3,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from My_args import *
-from PAConv.util.PAConv_util import knn, get_graph_feature, get_scorenet_input, feat_trans_dgcnn, ScoreNet, Attention_Layer
+from PAConv.util.PAConv_util import knn, get_graph_feature, get_scorenet_input, feat_trans_dgcnn, ScoreNet#, Attention_Layer
 from PAConv.cuda_lib.functional import assign_score_withk as assemble_dgcnn
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 

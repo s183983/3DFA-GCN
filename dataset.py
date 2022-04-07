@@ -52,8 +52,6 @@ class MeshDataset(Dataset):
         self.land_dir = os.path.join(root,"land_marks")
         self.use_texture = use_texture
 
-
-
     def __len__(self):
         return len(self.file_list)
 
@@ -64,7 +62,6 @@ class MeshDataset(Dataset):
         reader.Update()
         vertices = np.array(reader.GetOutput().GetPoints().GetData())
 
-        
         lab_name = os.path.join(self.lab_dir,os.path.basename(file).split('.')[0]+".npz")
         loaded = np.load(lab_name)
         label_load = loaded["label"]
