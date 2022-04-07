@@ -1,6 +1,9 @@
 import torch
 import numpy as np
 from torch.utils.data import Dataset
+import os
+import glob
+import vtk
 
 
 def load_face_data(data):
@@ -42,3 +45,34 @@ class FaceLandmarkData(Dataset):
 
 
 
+class MeshDataset(Dataset):
+    def __init__(self, root, mode, use_texture=False):
+        self.file_list = glob.glob(os.path.join(root,mode,"*.vtk"))
+        self.lab_dir = os.path.join(root,"labels")
+        self.land_dir = os.path.join(root,"land_marks")
+        self.use_texture = use_texture
+
+
+
+    def __len__(self):
+        return len(self.file_list)
+
+    def __getitem__(self, idx):
+        file = self.file_list[idx]
+        reader = vtk.vtkPolyDataReader()
+        reader.SetFileName(file)
+        reader.Update()
+        vertices = np.array(reader.GetOutput().GetPoints().GetData())
+
+        
+        lab_name = os.path.join(self.lab_dir,os.path.basename(file).split('.')[0]+".npz")
+        loaded = np.load(lab_name)
+        label_load = loaded["label"]
+        label = label_load.T
+        
+        if self.use_texture:
+            textures = loaded["texture"]
+
+        landmarks = 0
+        
+        return vertices, landmarks, label
