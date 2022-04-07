@@ -11,13 +11,14 @@ import time
 import numpy as np
 from scipy import io
 import torch.optim as optim
+import torch
 from torch.autograd import Variable
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 from torch.optim.lr_scheduler import CosineAnnealingLR, StepLR
 
 from init import *
-from My_args import *
+from My_args import parser
 from augmentations import *
 from dataset import FaceLandmarkData
 from loss import AdaptiveWingLoss
@@ -71,7 +72,7 @@ def train(args):
         model.train()
         for point, landmark, seg in train_loader:
             seg = torch.where(torch.isnan(seg), torch.full_like(seg, 0), seg)
-            iters = iters + 1
+            iters = iters + 11
             if args.no_cuda == False:
                 point = point.to(device)                   # point: (Batch * num_point * num_dim)
                 landmark = landmark.to(device)             # landmark : (Batch * landmark * num_dim)
