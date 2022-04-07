@@ -113,7 +113,7 @@ def train(args):
 if __name__ == "__main__":
     # Training settings
     args = parser.parse_args()
-    init._init_()
+    init._init_(args)
     args.cuda = not args.no_cuda and torch.cuda.is_available()
     train(args)
 

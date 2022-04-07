@@ -9,7 +9,7 @@ import os
 import torch
 
 
-def _init_():
+def _init_(args):
     if not os.path.exists('checkpoints'):
         os.makedirs('checkpoints')
     if not os.path.exists('checkpoints/'+args.exp_name):
