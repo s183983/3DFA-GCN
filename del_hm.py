@@ -29,3 +29,5 @@ for file in tqdm.tqdm(vtk_files):
     lp.append(len(points))
     
 print("minimum number of points in data is", np.array(lp).min())
+
+print("maximum number of points in data is", np.array(lp).max())

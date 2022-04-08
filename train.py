@@ -18,6 +18,8 @@ from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 from torch.optim.lr_scheduler import CosineAnnealingLR, StepLR
 from sys import platform
+import wandb
+
 import init
 from My_args import parser
 import augmentations as aug
@@ -83,8 +85,9 @@ def train(args):
     elif args.scheduler == 'step':
         scheduler = StepLR(opt, step_size=40, gamma=0.9)
 
-    loss_epoch = 0.0
+    
     for epoch in range(args.epochs):
+        loss_epoch, loss_val = 0.0, 0.0
         iters = 0
         model.train()
         for point, landmark, seg in train_loader:
@@ -105,7 +108,37 @@ def train(args):
             loss.backward()
             loss_epoch = loss_epoch + loss
             opt.step()
+            
+            wandb.log({"loss_step": loss,
+                           # "accuracy": acc,
+                           # "accuracy_w": acc_w
+                           })
+
+            
             print('Epoch: [%d / %d] Train_Iter: [%d /%d] loss: %.4f' % (epoch + 1, args.epochs, iters, len(train_loader), loss))
+            
+        for point, landmark, seg in val_loader:
+            seg = torch.where(torch.isnan(seg), torch.full_like(seg, 0), seg)
+            iters = iters + 1
+            if args.no_cuda == False:
+                point = point.to(device)                   # point: (Batch * num_point * num_dim)
+                landmark = landmark.to(device)             # landmark : (Batch * landmark * num_dim)
+                seg = seg.to(device)                       # seg: (Batch * point_num * landmark)
+            point_normal = aug.normalize_data(point)           # point_normal : (Batch * num_point * num_dim)
+            point_normal = ScaleAndTranslate(point_normal)
+            model.eval()
+            with torch.no_grad():
+                pred_heatmap = model(point_normal)
+                loss = criterion(pred_heatmap, seg.permute(0, 2, 1).contiguous())
+                loss_val = loss_val + loss
+                
+                
+        wandb.log({"train_loss": loss_epoch,
+                       "val_loss": loss_val,
+                       "epoch": epoch
+                       })   
+                
+        
         if (epoch + 1) % 5 == 0:
             torch.save(model.state_dict(), './checkpoints/%s/%s/models/model_epoch_%d.t7' % (args.exp_name, args.dataset, epoch+1))
         if args.scheduler == 'cos':
@@ -121,9 +154,18 @@ def train(args):
 
 if __name__ == "__main__":
     # Training settings
+        
     args = parser.parse_args()
     init._init_(args)
     args.cuda = not args.no_cuda and torch.cuda.is_available()
+    
+    wandb.init(project="3DFA-GCN", entity="s183983")
+    wandb.config = {
+      "learning_rate": args.lr,
+      "epochs": args.epochs,
+      "batch_size": args.batch_size,
+    }
+
     train(args)
 
 
