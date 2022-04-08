@@ -63,7 +63,7 @@ def train(args):
     MOMENTUM_DECCAY = 0.5
 
     # select a model to train
-    model = PAConv(args, 8).to(device)   # 68 in FaceScape; 8 in BU-3DFE and FRGC
+    model = PAConv(args, 83).to(device)   # 68 in FaceScape; 8 in BU-3DFE and FRGC
     model.apply(init.weight_init)
     model = nn.DataParallel(model)
 
