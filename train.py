@@ -34,10 +34,10 @@ def train(args):
     if args.need_resample:
         main_sample(args.num_points, args.seed, args.sigma, args.sample_way, args.dataset)
     # Dataset Random partition
-    FaceLandmark = FaceLandmarkData(partition='trainval', data=args.dataset)
-    train_size = int(len(FaceLandmark) * 0.7)
-    test_size = len(FaceLandmark) - train_size
-    torch.manual_seed(args.dataset_seed)
+    # FaceLandmark = FaceLandmarkData(partition='trainval', data=args.dataset)
+    # train_size = int(len(FaceLandmark) * 0.7)
+    # test_size = len(FaceLandmark) - train_size
+    # torch.manual_seed(args.dataset_seed)
     # Prepare the dateset and dataloader 
     # train_dataset, test_dataset = torch.utils.data.random_split(FaceLandmark, [train_size, test_size])
     # train_loader = DataLoader(train_dataset, num_workers=1, batch_size=args.batch_size, shuffle=True, drop_last=True)
