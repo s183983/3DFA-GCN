@@ -46,11 +46,12 @@ class FaceLandmarkData(Dataset):
 
 
 class MeshDataset(Dataset):
-    def __init__(self, root, mode, use_texture=False):
+    def __init__(self, root, mode, n_points=3346, use_texture=False):
         self.file_list = glob.glob(os.path.join(root,mode,"*.vtk"))
         self.lab_dir = os.path.join(root,"labels")
         self.land_dir = os.path.join(root,"land_marks")
         self.use_texture = use_texture
+        self.n_points = n_points
 
     def __len__(self):
         return len(self.file_list)
@@ -70,6 +71,15 @@ class MeshDataset(Dataset):
         if self.use_texture:
             textures = loaded["texture"]
 
-        landmarks = 0
+        landmarks = np.zeros((84,3))
+        
+        choice = np.random.choice(len(vertices), self.npoints, replace=False)
+
+        # resample
+        # note that the number of points in some points clouds is less than 2048, thus use random.choice
+        # remember to use the same seed during train and test for a getting stable result
+        vertices = vertices[choice, :]
+        label = label[choice]
+        landmarks = landmarks[choice, :]
         
         return vertices, landmarks, label
