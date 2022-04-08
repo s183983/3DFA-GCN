@@ -73,13 +73,12 @@ class MeshDataset(Dataset):
 
         landmarks = np.zeros((84,3))
         
-        choice = np.random.choice(len(vertices), self.npoints, replace=False)
+        choice = np.random.choice(len(vertices), self.n_points, replace=False)
 
         # resample
         # note that the number of points in some points clouds is less than 2048, thus use random.choice
         # remember to use the same seed during train and test for a getting stable result
         vertices = vertices[choice, :]
         label = label[choice]
-        landmarks = landmarks[choice, :]
         
         return vertices, landmarks, label
