@@ -1,2 +1,4 @@
 *.pyc
 *.m~
+
+PAConv/cuda_lib/*
