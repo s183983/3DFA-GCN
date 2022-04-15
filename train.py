@@ -111,6 +111,8 @@ def train(args):
 
             # Compute the loss fucntion 
             loss = criterion(pred_heatmap, seg.permute(0, 2, 1).contiguous())
+            print("pred:",torch.isnan(pred_heatmap.any()))
+            print("seg:",torch.isnan(seg).any())
             loss.backward()
             loss_epoch = loss_epoch + loss
             opt.step()
