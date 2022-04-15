@@ -162,7 +162,7 @@ def train(args):
                        })
         print('Epoch: [%d / %d], val L1: [%f], val L2: [%f]' % (epoch + 1, args.epochs, L1_mean, L2_mean))
         
-        if (epoch + 1) % 1 == 0:
+        if (epoch + 1) % 5 == 0:
             torch.save(model.state_dict(),
             './checkpoints/%s/models/model_epoch_%d.pt' % (args.exp_name, epoch+1))
             
