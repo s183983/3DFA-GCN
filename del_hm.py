@@ -17,17 +17,17 @@ vtk_files = glob.glob(os.path.join(path,"**/*.vtk"))
 lp = []
 print("\nwriting and cleaning files\n")
 for file in tqdm.tqdm(vtk_files):
-    # new_file = file.replace("_hm", "")
-    # os.rename(file, new_file)
-    reader = vtk.vtkPolyDataReader()
-    reader.SetFileName(file)
-    reader.ReadAllScalarsOn()
-    reader.Update()
+    new_file = file.replace("_hm", "")
+    os.rename(file, new_file)
+    # reader = vtk.vtkPolyDataReader()
+    # reader.SetFileName(file)
+    # reader.ReadAllScalarsOn()
+    # reader.Update()
     
-    points = np.array( reader.GetOutput().GetPoints().GetData() )
+    # points = np.array( reader.GetOutput().GetPoints().GetData() )
     
-    lp.append(len(points))
+    # lp.append(len(points))
     
-print("minimum number of points in data is", np.array(lp).min())
+# print("minimum number of points in data is", np.array(lp).min())
 
-print("maximum number of points in data is", np.array(lp).max())
+# print("maximum number of points in data is", np.array(lp).max())
