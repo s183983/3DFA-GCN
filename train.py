@@ -96,18 +96,19 @@ def train(args):
         loss_epoch, loss_val = 0.0, 0.0
         iters = 0
         model.train()
-        for point, landmark, seg in train_loader:
+        for point, landmark, seg, texture in train_loader:
             seg = torch.where(torch.isnan(seg), torch.full_like(seg, 0), seg)
             iters = iters + 1
             if args.no_cuda == False:
                 point = point.to(device)                   # point: (Batch * num_point * num_dim)
                 landmark = landmark.to(device)             # landmark : (Batch * landmark * num_dim)
                 seg = seg.to(device)                       # seg: (Batch * point_num * landmark)
+                texture = texture.to(device)   
             point_normal = aug.normalize_data(point)           # point_normal : (Batch * num_point * num_dim)
             point_normal = ScaleAndTranslate(point_normal)
             opt.zero_grad()
             point_normal = point_normal.permute(0, 2, 1)   # point : (batch * num_dim * num_point)
-            pred_heatmap = model(point_normal)
+            pred_heatmap = model(point_normal,texture)
 
             # Compute the loss fucntion 
             loss = criterion(pred_heatmap, seg.permute(0, 2, 1).contiguous())
@@ -128,18 +129,19 @@ def train(args):
        
         L1_mean, L2_mean = 0,0
         model.eval()
-        for point, landmark, seg in val_loader:
+        for point, landmark, seg, texture in val_loader:
             seg = torch.where(torch.isnan(seg), torch.full_like(seg, 0), seg)
             if args.no_cuda == False:
                 point = point.to(device)                   # point: (Batch * num_point * num_dim)
                 landmark = landmark.to(device)             # landmark : (Batch * landmark * num_dim)
                 seg = seg.to(device)                       # seg: (Batch * point_num * landmark)
+                texture = texture.to(device)   
             point_normal = aug.normalize_data(point)           # point_normal : (Batch * num_point * num_dim)
             point_normal = ScaleAndTranslate(point_normal)
             
             with torch.no_grad():
                 point_normal = point_normal.permute(0, 2, 1)
-                pred_heatmap = model(point_normal)
+                pred_heatmap = model(point_normal,texture)
                 loss = criterion(pred_heatmap, seg.permute(0, 2, 1).contiguous())
                 loss_val = loss_val + loss
                 
@@ -168,17 +170,18 @@ def train(args):
             
             preds = np.full([print_set.batch_size, print_set.mesh_points, 83], np.nan)
             model.eval()
-            for point, landmark, seg, choice in print_loader:
+            for point, landmark, seg, texture, choice in print_loader:
                 seg = torch.where(torch.isnan(seg), torch.full_like(seg, 0), seg)
                 if args.no_cuda == False:
                     point = point.to(device)                   # point: (Batch * num_point * num_dim)
                     landmark = landmark.to(device)             # landmark : (Batch * landmark * num_dim)
                     seg = seg.to(device)                       # seg: (Batch * point_num * landmark)
+                    texture = texture.to(device)   
                 point_normal = aug.normalize_data(point)           # point_normal : (Batch * num_point * num_dim)
                 point_normal = ScaleAndTranslate(point_normal)
                 with torch.no_grad():
                     point_normal = point_normal.permute(0, 2, 1)
-                    pred_heatmap = model(point_normal).cpu()
+                    pred_heatmap = model(point_normal,texture).cpu()
                     
                 for i in range(print_set.batch_size):
                     preds[i,choice[i],:] = pred_heatmap[i,:,:].T
@@ -247,17 +250,18 @@ def test(args):
 
     model.eval()
     L1_mean, L2_mean = 0,0
-    for point, landmark, seg in val_loader:
+    for point, landmark, seg, texture in val_loader:
         seg = torch.where(torch.isnan(seg), torch.full_like(seg, 0), seg)
         if args.no_cuda == False:
             point = point.to(device)                   # point: (Batch * num_point * num_dim)
             landmark = landmark.to(device)             # landmark : (Batch * landmark * num_dim)
             seg = seg.to(device)                       # seg: (Batch * point_num * landmark)
+            texture = texture.to(device)   
         point_normal = aug.normalize_data(point)           # point_normal : (Batch * num_point * num_dim)
         point_normal = ScaleAndTranslate(point_normal)
         with torch.no_grad():
             point_normal = point_normal.permute(0, 2, 1)
-            pred_heatmap = model(point_normal)
+            pred_heatmap = model(point_normal,texture)
             
             L2 = torch.sqrt(torch.pow(pred_heatmap-seg.permute(0, 2, 1),2).sum(2).sum(1))
             L1 = torch.abs(pred_heatmap-seg.permute(0, 2, 1)).sum(2).sum(1)
@@ -277,18 +281,19 @@ def test(args):
                    })  
     preds = np.full([print_set.batch_size, print_set.mesh_points, 83], np.nan)
     
-    for point, landmark, seg, choice in print_loader:
+    for point, landmark, seg, texture, choice in print_loader:
         seg = torch.where(torch.isnan(seg), torch.full_like(seg, 0), seg)
         if args.no_cuda == False:
             point = point.to(device)                   # point: (Batch * num_point * num_dim)
             landmark = landmark.to(device)             # landmark : (Batch * landmark * num_dim)
-            seg = seg.to(device)                       # seg: (Batch * point_num * landmark)
+            seg = seg.to(device)  
+            texture = texture.to(device)                     # seg: (Batch * point_num * landmark)
         point_normal = aug.normalize_data(point)           # point_normal : (Batch * num_point * num_dim)
         point_normal = ScaleAndTranslate(point_normal)
         model.eval()
         with torch.no_grad():
             point_normal = point_normal.permute(0, 2, 1)
-            pred_heatmap = model(point_normal).cpu()
+            pred_heatmap = model(point_normal,texture).cpu()
             
         for i in range(print_loader.batch_size):
             preds[i,choice[i],:] = (pred_heatmap[i,:,:]).T

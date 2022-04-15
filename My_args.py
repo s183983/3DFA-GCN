@@ -47,7 +47,7 @@ parser.add_argument('--num_points', type=int, default=3346, help='num of points 
 parser.add_argument('--sigma', type=float, default=10, metavar='Sig', help='Gaussian Variance of heatmap')
 parser.add_argument('--emb_dims', type=int, default=1024, metavar='N', help='Dimension of embeddings')
 parser.add_argument('--k', type=int, default=30, metavar='N', help='Num of nearest neighbors to use in PAConv')
-
+parser.add_argument('--use_texture', type=bool, default=False, metavar='N', help='Use texture in segmentation')
 
 # PAConv args
 parser.add_argument('--calc_scores', type=str, default='softmax', metavar='cs', help='The way to calculate score')

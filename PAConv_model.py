@@ -22,6 +22,7 @@ class PAConv(nn.Module):
         self.landmark_num = landmark_num
         self.calc_scores = args.calc_scores
         self.hidden = args.hidden
+        self.use_texture = args.use_texture
 
         self.m2, self.m3, self.m4, self.m5 = args.num_matrices
         self.scorenet2 = ScoreNet(10, self.m2, hidden_unit=self.hidden[0])
@@ -60,9 +61,13 @@ class PAConv(nn.Module):
         self.bn6 = nn.BatchNorm1d(256, momentum=0.1)
         self.bn7 = nn.BatchNorm1d(256, momentum=0.1)
         self.bn8 = nn.BatchNorm1d(128, momentum=0.1)
-
-        self.conv1 = nn.Sequential(nn.Conv2d(6, 64, kernel_size=1, bias=True),     # 6 18
-                                   nn.BatchNorm2d(64, momentum=0.1))
+        
+        if self.use_texture:
+            self.conv1 = nn.Sequential(nn.Conv2d(12, 64, kernel_size=1, bias=True),     # 6 18
+                                       nn.BatchNorm2d(64, momentum=0.1))
+        else:
+            self.conv1 = nn.Sequential(nn.Conv2d(6, 64, kernel_size=1, bias=True),     # 6 18
+                                       nn.BatchNorm2d(64, momentum=0.1))
 
         self.convt = nn.Sequential(nn.Conv1d(64*5, 1024, kernel_size=1, bias=False),
                                    self.bnt)
@@ -78,13 +83,17 @@ class PAConv(nn.Module):
         self.conv9 = nn.Conv1d(128, landmark_num, kernel_size=1, bias=True)
 
         
-    def forward(self, x):
+    def forward(self, x, texture):
         B, C, N = x.size()
         idx, _ = knn(x, k=self.k)
         xyz = get_scorenet_input(x, k=self.k, idx=idx)  # ScoreNet input
         # use MLP at the 1st layer, same with DGCNN
         x = get_graph_feature(x, k=self.k, idx=idx)
         x = x.permute(0, 3, 1, 2)  # b,2cin,n,k
+        if len(texture):
+            tx = get_graph_feature(texture, k=self.k, idx=idx)
+            tx = x.permute(0, 3, 1, 2)  # b,2cin,n,k
+            x = torch.concat((x,tx),dim=1)
         x = F.relu(self.conv1(x))
         x1 = x.max(dim=-1, keepdim=False)[0]
         # replace the last 4 DGCNN-EdgeConv with PAConv:

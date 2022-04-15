@@ -72,6 +72,8 @@ class MeshDataset(Dataset):
         
         if self.use_texture:
             textures = loaded["texture"]
+        else:
+            textures = np.empty(0)
 
         landmarks = np.zeros((84,3))
         
@@ -83,7 +85,7 @@ class MeshDataset(Dataset):
         vertices = vertices[choice, :]
         label = label[choice]
         
-        return torch.from_numpy(vertices), torch.from_numpy(landmarks), torch.from_numpy(label)
+        return torch.from_numpy(vertices), torch.from_numpy(landmarks), torch.from_numpy(label), torch.from_numpy(textures)
     
     
     
@@ -135,7 +137,8 @@ class PrintDataset(Dataset):
         
         if self.use_texture:
             textures = loaded["texture"]
-
+        else:
+            textures = np.empty(0)
         landmarks = np.zeros((84,3))
         
         sample = self.indices[idx*self.sample_size:] if idx==self.batch_size\
@@ -153,4 +156,5 @@ class PrintDataset(Dataset):
         vertices = vertices[choice, :]
         label = label[choice]
         
-        return torch.from_numpy(vertices), torch.from_numpy(landmarks), torch.from_numpy(label), choice
+        return torch.from_numpy(vertices), torch.from_numpy(landmarks), torch.from_numpy(label),\
+            torch.from_numpy(textures), choice
