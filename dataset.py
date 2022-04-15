@@ -106,7 +106,7 @@ class PrintDataset(Dataset):
         
         self.mesh_points = len(vertices)
         
-        self.sample_size = np.floor(self.mesh_points/batch_size, dtype=np.int32)
+        self.sample_size = np.floor(self.mesh_points/batch_size).astype(np.int32)
         self.indices = np.arange(self.mesh_points)
         np.random.shuffle(self.indices)
         poly = np.array(dsa.WrapDataObject(reader.GetOutput()).Polygons)
