@@ -288,7 +288,7 @@ def test(args):
             pred_heatmap = model(point_normal).cpu()
             
         for i in range(print_loader.batch_size):
-            preds[i,choice[i],:] = pred_heatmap[i,:,:]
+            preds[i,choice[i],:] = (pred_heatmap[i,:,:]).T
             
     pred_labels = np.nanmean(preds,axis=0)
     save_name = os.path.join('./checkpoints',args.exp_name,'meshes',print_set.file_name+'_test_hm5.vtk')
