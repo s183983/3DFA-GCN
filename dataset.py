@@ -158,6 +158,7 @@ class PrintDataset(Dataset):
         if self.use_texture:
             textures = loaded["texture"]
             textures = textures[choice]
+            print(textures.max())
 
         else:
             textures = np.empty(0)

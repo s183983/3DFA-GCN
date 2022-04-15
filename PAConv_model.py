@@ -84,8 +84,8 @@ class PAConv(nn.Module):
 
         
     def forward(self, x, texture):
-        print("x:", x.shape)
-        print("tx:", texture.permute(0,2,1).shape)
+        # print("x:", x.shape)
+        # print("tx:", texture.permute(0,2,1).shape)
         B, C, N = x.size()
         idx, _ = knn(x, k=self.k)
         xyz = get_scorenet_input(x, k=self.k, idx=idx)  # ScoreNet input
@@ -96,8 +96,8 @@ class PAConv(nn.Module):
             tx = texture.permute(0, 2, 1)
             tx = get_graph_feature(tx, k=self.k, idx=idx)
             tx = tx.permute(0, 3, 1, 2)  # b,2cin,n,k
-            print("x:", x.shape)
-            print("tx:", tx.shape)
+            # print("x:", x.shape)
+            # print("tx:", tx.shape)
 
             x = torch.concat((x,tx),dim=1)
         x = F.relu(self.conv1(x))
