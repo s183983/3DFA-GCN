@@ -54,15 +54,15 @@ def train(args):
     # train_loader = DataLoader(train_dataset, num_workers=1, batch_size=args.batch_size, shuffle=True, drop_last=True)
     # test_loader = DataLoader(test_dataset, num_workers=1, batch_size=args.test_batch_size, shuffle=True, drop_last=True)
     
-    train_set = MeshDataset(root,"train", args.num_points)
+    train_set = MeshDataset(root,"train", args.num_points, use_texture=args.use_texture)
     train_loader = DataLoader(train_set, batch_size=args.batch_size,
                               num_workers=args.num_workers, shuffle=True, drop_last=True)
     
-    val_set = MeshDataset(root,"val", args.num_points)
+    val_set = MeshDataset(root,"val", args.num_points, use_texture=args.use_texture)
     val_loader = DataLoader(val_set, batch_size=args.batch_size, 
                             num_workers=args.num_workers, shuffle=True, drop_last=True)
     
-    print_set = PrintDataset(root,"val", args.batch_size, args.num_points)
+    print_set = PrintDataset(root,"val", args.batch_size, args.num_points, use_texture=args.use_texture)
     pd1 = print_set.pd
     print_loader = DataLoader(print_set, batch_size=args.batch_size, shuffle=False, drop_last=False)
     # data argument
@@ -229,11 +229,11 @@ def test(args):
     # train_loader = DataLoader(train_dataset, num_workers=1, batch_size=args.batch_size, shuffle=True, drop_last=True)
     # test_loader = DataLoader(test_dataset, num_workers=1, batch_size=args.test_batch_size, shuffle=True, drop_last=True)
     
-    val_set = MeshDataset(root,"test", args.num_points)
+    val_set = MeshDataset(root,"test", args.num_points, use_texture=args.use_texture)
     val_loader = DataLoader(val_set, batch_size=args.batch_size,
                             num_workers=args.num_workers, shuffle=True, drop_last=False)
     
-    print_set = PrintDataset(root,"test", args.batch_size, args.num_points)
+    print_set = PrintDataset(root,"test", args.batch_size, args.num_points, use_texture=args.use_texture)
     print_loader = DataLoader(print_set, batch_size=args.batch_size, shuffle=False, drop_last=False)
     # data argument
     ScaleAndTranslate = aug.PointcloudScaleAndTranslate()

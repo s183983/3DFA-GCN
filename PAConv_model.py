@@ -90,7 +90,7 @@ class PAConv(nn.Module):
         # use MLP at the 1st layer, same with DGCNN
         x = get_graph_feature(x, k=self.k, idx=idx)
         x = x.permute(0, 3, 1, 2)  # b,2cin,n,k
-        if len(texture):
+        if self.use_texture:
             tx = get_graph_feature(texture.permute(0, 2, 1), k=self.k, idx=idx)
             tx = x.permute(0, 3, 1, 2)  # b,2cin,n,k
             x = torch.concat((x,tx),dim=1)
