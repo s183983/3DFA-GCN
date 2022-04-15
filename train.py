@@ -153,7 +153,6 @@ def train(args):
                 
         L1_mean /= len(val_loader)
         L2_mean /= len(val_loader)
-        print("Mean L1:", L1_mean, "Mean L2:", L2_mean)
         wandb.log({"test_L1_mean": L1_mean,
                        "test_L2_mean": L2_mean,
                        })
@@ -163,7 +162,7 @@ def train(args):
             torch.save(model.state_dict(),
             './checkpoints/%s/models/model_epoch_%d.pt' % (args.exp_name, epoch+1))
             
-            preds = np.full([print_loader.batch_size, print_loader.mesh_points, 83], np.nan)
+            preds = np.full([print_set.batch_size, print_set.mesh_points, 83], np.nan)
             model.eval()
             for point, landmark, seg, choice in print_loader:
                 seg = torch.where(torch.isnan(seg), torch.full_like(seg, 0), seg)
@@ -177,13 +176,13 @@ def train(args):
                     point_normal = point_normal.permute(0, 2, 1)
                     pred_heatmap = model(point_normal).cpu()
                     
-                for i in range(print_loader.batch_size):
+                for i in range(print_set.batch_size):
                     preds[i,choice[i],:] = pred_heatmap[i,:,:]
                     
             pred_labels = np.nanmean(preds,axis=0)
-            save_name = os.path.join('./checkpoints',args.exp_name,'meshes',print_loader.file_name+'_'+str(epoch+1)+'_hm5.vtk')
+            save_name = os.path.join('./checkpoints',args.exp_name,'meshes',print_set.file_name+'_'+str(epoch+1)+'_hm5.vtk')
             save_vtk(print_set.pd,pred_labels[:,4], save_name)
-            save_name = os.path.join('./checkpoints',args.exp_name,'meshes',print_loader.file_name+'_'+str(epoch+1)+'_hm42.vtk')
+            save_name = os.path.join('./checkpoints',args.exp_name,'meshes',print_set.file_name+'_'+str(epoch+1)+'_hm42.vtk')
             save_vtk(print_set.pd,pred_labels[:,41], save_name)
             
         if args.scheduler == 'cos':
@@ -272,7 +271,7 @@ def test(args):
     wandb.log({"test_L1_mean": L1_mean,
                    "test_L2_mean": L2_mean,
                    })  
-    preds = np.full([print_loader.batch_size, print_loader.mesh_points, 83], np.nan)
+    preds = np.full([print_set.batch_size, print_set.mesh_points, 83], np.nan)
     
     for point, landmark, seg, choice in print_loader:
         seg = torch.where(torch.isnan(seg), torch.full_like(seg, 0), seg)
@@ -290,9 +289,9 @@ def test(args):
             preds[i,choice[i],:] = pred_heatmap[i,:,:]
             
     pred_labels = np.nanmean(preds,axis=0)
-    save_name = os.path.join('./checkpoints',args.exp_name,'meshes',print_loader.file_name+'_test_hm5.vtk')
+    save_name = os.path.join('./checkpoints',args.exp_name,'meshes',print_set.file_name+'_test_hm5.vtk')
     save_vtk(print_set.pd,pred_labels[:,4], save_name)
-    save_name = os.path.join('./checkpoints',args.exp_name,'meshes',print_loader.file_name+'_test_hm42.vtk')
+    save_name = os.path.join('./checkpoints',args.exp_name,'meshes',print_set.file_name+'_test_hm42.vtk')
     save_vtk(print_set.pd,pred_labels[:,41], save_name)
         
        
