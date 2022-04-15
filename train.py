@@ -63,6 +63,7 @@ def train(args):
                             num_workers=args.num_workers, shuffle=True, drop_last=True)
     
     print_set = PrintDataset(root,"val", args.batch_size, args.num_points)
+    pd1 = print_set.pd
     print_loader = DataLoader(print_set, batch_size=args.batch_size, shuffle=False, drop_last=False)
     # data argument
     ScaleAndTranslate = aug.PointcloudScaleAndTranslate()
@@ -183,7 +184,7 @@ def train(args):
             save_name = os.path.join('./checkpoints',args.exp_name,'meshes',print_set.file_name+'_'+str(epoch+1)+'_hm5.vtk')
             save_vtk(print_set.pd,pred_labels[:,4], save_name)
             save_name = os.path.join('./checkpoints',args.exp_name,'meshes',print_set.file_name+'_'+str(epoch+1)+'_hm42.vtk')
-            save_vtk(print_set.pd,pred_labels[:,41], save_name)
+            save_vtk(pd1,pred_labels[:,41], save_name)
             
         if args.scheduler == 'cos':
             scheduler.step()
@@ -283,6 +284,7 @@ def test(args):
         point_normal = ScaleAndTranslate(point_normal)
         model.eval()
         with torch.no_grad():
+            point_normal = point_normal.permute(0, 2, 1)
             pred_heatmap = model(point_normal).cpu()
             
         for i in range(print_loader.batch_size):
