@@ -70,10 +70,7 @@ class MeshDataset(Dataset):
         label_load = loaded["label"]
         label = label_load.T
         
-        if self.use_texture:
-            textures = loaded["texture"]
-        else:
-            textures = np.empty(0)
+        
 
         landmarks = np.zeros((84,3))
         
@@ -82,6 +79,13 @@ class MeshDataset(Dataset):
         # resample
         # note that the number of points in some points clouds is less than 2048, thus use random.choice
         # remember to use the same seed during train and test for a getting stable result
+        
+        if self.use_texture:
+            textures = loaded["texture"]
+            textures = textures[choice]
+        else:
+            textures = np.empty(0)
+        
         vertices = vertices[choice, :]
         label = label[choice]
         
@@ -135,10 +139,7 @@ class PrintDataset(Dataset):
         poly = np.array(dsa.WrapDataObject(reader.GetOutput()).Polygons)
         faces = np.reshape(poly,(-1,4))[:,1:4]
         
-        if self.use_texture:
-            textures = loaded["texture"]
-        else:
-            textures = np.empty(0)
+        
         landmarks = np.zeros((84,3))
         
         sample = self.indices[idx*self.sample_size:] if idx==self.batch_size\
@@ -153,6 +154,14 @@ class PrintDataset(Dataset):
         # resample
         # note that the number of points in some points clouds is less than 2048, thus use random.choice
         # remember to use the same seed during train and test for a getting stable result
+        
+        if self.use_texture:
+            textures = loaded["texture"]
+            textures = textures[choice]
+
+        else:
+            textures = np.empty(0)
+            
         vertices = vertices[choice, :]
         label = label[choice]
         
