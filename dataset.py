@@ -82,14 +82,14 @@ class MeshDataset(Dataset):
         
         if self.use_texture:
             textures = loaded["texture"]
-            textures = textures[choice]
+            textures = textures[choice].astype(np.float64)
+            textures = textures/255*2-1
         else:
             textures = np.empty(0)
         
         vertices = vertices[choice, :]
         label = label[choice]
-        print(textures.max())
-        print(textures.min())
+
         return torch.from_numpy(vertices), torch.from_numpy(landmarks), torch.from_numpy(label), torch.from_numpy(textures)
     
     
@@ -158,9 +158,8 @@ class PrintDataset(Dataset):
         
         if self.use_texture:
             textures = loaded["texture"]
-            textures = textures[choice]
-            
-
+            textures = textures[choice].astype(np.float64)
+            textures = textures/255*2-1
         else:
             textures = np.empty(0)
             
