@@ -134,12 +134,13 @@ def train(args):
             point_normal = ScaleAndTranslate(point_normal)
             
             with torch.no_grad():
+                point_normal = point_normal.permute(0, 2, 1)
                 pred_heatmap = model(point_normal)
                 loss = criterion(pred_heatmap, seg.permute(0, 2, 1).contiguous())
                 loss_val = loss_val + loss
                 
-                L2 = np.sqrt(np.power(pred_heatmap-seg,2).sum(2).sum(1))
-                L1 = np.abs(pred_heatmap-seg).sum(2).sum(1)
+                L2 = np.sqrt(np.power(pred_heatmap-seg.permute(0, 2, 1),2).sum(2).sum(1))
+                L1 = np.abs(pred_heatmap-seg.permute(0, 2, 1)).sum(2).sum(1)
                 L1_mean += L1.sum()
                 L2_mean += L2.sum()
                 
@@ -163,7 +164,7 @@ def train(args):
             './checkpoints/%s/models/model_epoch_%d.pt' % (args.exp_name, epoch+1))
             
             preds = np.full([print_loader.batch_size, print_loader.mesh_points, 83], np.nan)
-            
+            model.eval()
             for point, landmark, seg, choice in print_loader:
                 seg = torch.where(torch.isnan(seg), torch.full_like(seg, 0), seg)
                 if args.no_cuda == False:
@@ -172,8 +173,8 @@ def train(args):
                     seg = seg.to(device)                       # seg: (Batch * point_num * landmark)
                 point_normal = aug.normalize_data(point)           # point_normal : (Batch * num_point * num_dim)
                 point_normal = ScaleAndTranslate(point_normal)
-                model.eval()
                 with torch.no_grad():
+                    point_normal = point_normal.permute(0, 2, 1)
                     pred_heatmap = model(point_normal).cpu()
                     
                 for i in range(print_loader.batch_size):
@@ -251,12 +252,12 @@ def test(args):
             seg = seg.to(device)                       # seg: (Batch * point_num * landmark)
         point_normal = aug.normalize_data(point)           # point_normal : (Batch * num_point * num_dim)
         point_normal = ScaleAndTranslate(point_normal)
-        model.eval()
         with torch.no_grad():
+            point_normal = point_normal.permute(0, 2, 1)
             pred_heatmap = model(point_normal)
             
-            L2 = np.sqrt(np.power(pred_heatmap-seg,2).sum(2).sum(1))
-            L1 = np.abs(pred_heatmap-seg).sum(2).sum(1)
+            L2 = np.sqrt(np.power(pred_heatmap-seg.permute(0, 2, 1),2).sum(2).sum(1))
+            L1 = np.abs(pred_heatmap-seg.permute(0, 2, 1)).sum(2).sum(1)
             
         L1_mean += L1.sum()
         L2_mean += L2.sum()
