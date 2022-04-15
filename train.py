@@ -113,7 +113,7 @@ def train(args):
             loss.backward()
             loss_epoch = loss_epoch + loss
             opt.step()
-            
+            break
             wandb.log({"loss_step": loss,
                            # "accuracy": acc,
                            # "accuracy_w": acc_w
@@ -151,8 +151,8 @@ def train(args):
                              
             
                 
-        L1_mean /= len(val_loader.file_list)
-        L2_mean /= len(val_loader.file_list)
+        L1_mean /= len(val_loader)
+        L2_mean /= len(val_loader)
         print("Mean L1:", L1_mean, "Mean L2:", L2_mean)
         wandb.log({"test_L1_mean": L1_mean,
                        "test_L2_mean": L2_mean,
@@ -182,9 +182,9 @@ def train(args):
                     
             pred_labels = np.nanmean(preds,axis=0)
             save_name = os.path.join('./checkpoints',args.exp_name,'meshes',print_loader.file_name+'_'+str(epoch+1)+'_hm5.vtk')
-            save_vtk(print_loader.pd,pred_labels[:,4], save_name)
+            save_vtk(print_set.pd,pred_labels[:,4], save_name)
             save_name = os.path.join('./checkpoints',args.exp_name,'meshes',print_loader.file_name+'_'+str(epoch+1)+'_hm42.vtk')
-            save_vtk(print_loader.pd,pred_labels[:,41], save_name)
+            save_vtk(print_set.pd,pred_labels[:,41], save_name)
             
         if args.scheduler == 'cos':
             scheduler.step()
@@ -266,8 +266,8 @@ def test(args):
                            "test_L2": l1,
                            })   
             
-    L1_mean /= len(val_loader.file_list)
-    L2_mean /= len(val_loader.file_list)
+    L1_mean /= len(val_loader)
+    L2_mean /= len(val_loader)
     print("Mean L1:", L1_mean, "Mean L2:", L2_mean)
     wandb.log({"test_L1_mean": L1_mean,
                    "test_L2_mean": L2_mean,
@@ -291,9 +291,9 @@ def test(args):
             
     pred_labels = np.nanmean(preds,axis=0)
     save_name = os.path.join('./checkpoints',args.exp_name,'meshes',print_loader.file_name+'_test_hm5.vtk')
-    save_vtk(print_loader.pd,pred_labels[:,4], save_name)
+    save_vtk(print_set.pd,pred_labels[:,4], save_name)
     save_name = os.path.join('./checkpoints',args.exp_name,'meshes',print_loader.file_name+'_test_hm42.vtk')
-    save_vtk(print_loader.pd,pred_labels[:,41], save_name)
+    save_vtk(print_set.pd,pred_labels[:,41], save_name)
         
        
 
