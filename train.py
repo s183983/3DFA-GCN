@@ -114,7 +114,6 @@ def train(args):
             loss.backward()
             loss_epoch = loss_epoch + loss
             opt.step()
-            break
             wandb.log({"loss_step": loss,
                            # "accuracy": acc,
                            # "accuracy_w": acc_w
@@ -268,7 +267,7 @@ def test(args):
             
     L1_mean /= len(val_loader)
     L2_mean /= len(val_loader)
-    print("Mean L1:", L1_mean, "Mean L2:", L2_mean)
+    print('Testing done, final L1: [%f], final L2: [%f]' % ( L1_mean, L2_mean))
     wandb.log({"test_L1_mean": L1_mean,
                    "test_L2_mean": L2_mean,
                    })  
