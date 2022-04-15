@@ -312,11 +312,6 @@ if __name__ == "__main__":
     }
 
     train(args)
-    
+    print("Doing final test of model")
+    test(args)
 
-
-a = np.arange(5,10)
-b = a+5
-
-for (aa,bb) in zip(a,b):
-    print(aa,bb)
