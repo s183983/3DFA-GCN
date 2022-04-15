@@ -192,6 +192,9 @@ def train(args):
                 for param_group in opt.param_groups:
                     param_group['lr'] = 1e-5
         writer.add_scalar('3D_Face_Alignment_loss', loss_epoch / ((epoch + 1) * len(train_loader)), epoch + 1)
+        
+    torch.save(model.state_dict(),
+    './checkpoints/%s/models/model_epoch_%d.pt' % (args.exp_name, epoch+1))
 
 def test(args):
     
@@ -233,7 +236,7 @@ def test(args):
     name = names[-1]
     ckpt = torch.load(name, map_location=lambda storage, loc: storage)
 
-    model.load_state_dict(ckpt["net"])
+    model.load_state_dict(ckpt)
 
     model.eval()
     L1_mean, L2_mean = 0,0
