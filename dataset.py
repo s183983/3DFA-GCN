@@ -143,7 +143,7 @@ class PrintDataset(Dataset):
         
         choices = np.arange(len(vertices))
         
-        choices = choices[choices != sample]
+        choices = choices[np.isin(choices,sample,invert=True)]
         
         choice = np.random.choice(choices, self.num_points-len(sample), replace=False)
         choice = np.concatenate((choice,sample), axis=0)
