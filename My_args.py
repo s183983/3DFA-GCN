@@ -11,7 +11,7 @@ import torch
 
 parser = argparse.ArgumentParser(description='3D Face Landmark Detection')
 # base args
-parser.add_argument('--exp_name', type=str, default='Face alignment with PAConv', metavar='N', help='Name of the experiment')
+parser.add_argument('--exp_name', type=str, default='BU_3DFE', metavar='N', help='Name of the experiment')
 parser.add_argument('--model', type=str, default='PAConv', metavar='N', choices=['EdgeConv', 'PAConv'], help='Model to use')
 parser.add_argument('--no_cuda', type=bool, default=False, help='enables CUDA training')
 parser.add_argument('--model_path', type=str, default='', metavar='N', help='Pretrained model path')
@@ -42,7 +42,7 @@ parser.add_argument('--need_resample', type=bool, default=False, help='resample 
 parser.add_argument('--seed', type=int, default=10, metavar='S', help='random seed (default: 1)')
 parser.add_argument('--regression_point_num', type=int, default=10, metavar='RPN', help='the number of points in landmark regression (default: 10)')
 parser.add_argument('--dataset_seed', type=int, default=1, metavar='S', help='train/test dataset random seed (default: 1)')
-parser.add_argument('--num_points', type=int, default=2048, help='num of points to use')
+parser.add_argument('--num_points', type=int, default=3346, help='num of points to use')
 parser.add_argument('--sigma', type=float, default=10, metavar='Sig', help='Gaussian Variance of heatmap')
 parser.add_argument('--emb_dims', type=int, default=1024, metavar='N', help='Dimension of embeddings')
 parser.add_argument('--k', type=int, default=30, metavar='N', help='Num of nearest neighbors to use in PAConv')

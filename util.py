@@ -10,6 +10,11 @@ import scipy.io as sio
 import torch
 import h5py
 import cv2
+import vtk
+from vtk.numpy_interface import dataset_adapter as dsa
+from vtk.util import numpy_support
+import os
+import glob
 import sys
 from functools import reduce
 import torch.nn.functional as F
@@ -260,3 +265,35 @@ def main_sample(number_point, seed, sigma, sample_way, dataset):
     np.save('./%s-npy/Heat_data_sample.npy' % dataset, Heat_data_sample)
     np.save('./%s-npy/shape_sample.npy' % dataset, shape_sample)
     np.save('./%s-npy/landmark_position_select_all.npy' % dataset, landmark_position_select_all)
+
+
+def save_vtk( pd, labels, o_name ):
+    
+
+    lab = numpy_support.numpy_to_vtk(labels)
+    pd.GetPointData().SetScalars(lab)
+    print("Writing", o_name)
+    writer = vtk.vtkPolyDataWriter()
+    writer.SetInputData(pd)
+    writer.SetFileName(o_name)
+    writer.Write()
+
+
+if __name__=="__main__":
+    
+    path = 'C:/Users/lowes/OneDrive/Skrivebord/DTU/8_Semester/Advaced_Geometric_DL/BU_3DFE_3DHeatmaps_crop_2'
+    vtk_files = glob.glob(os.path.join(path,"**/*.vtk"))
+    file = vtk_files[0]
+    
+    reader = vtk.vtkPolyDataReader()
+    reader.SetFileName(file)
+    reader.Update()
+    pd = reader.GetOutput()
+    points = np.array(reader.GetOutput().GetPoints().GetData())
+
+    
+    poly = np.array(dsa.WrapDataObject(reader.GetOutput()).Polygons)
+    faces = np.reshape(poly,(-1,4))[:,1:4]
+    labels = np.arange(len(points))/len(points)
+    save_name = os.path.join(path,os.path.basename(file)+'_'+str(1)+'_hm42.vtk')
+    save_vtk(pd,labels, save_name)
