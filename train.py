@@ -104,7 +104,6 @@ def train(args):
                 landmark = landmark.to(device)             # landmark : (Batch * landmark * num_dim)
                 seg = seg.to(device)                       # seg: (Batch * point_num * landmark)
                 texture = texture.to(device)   
-            print(texture.shape)
             point_normal = aug.normalize_data(point)           # point_normal : (Batch * num_point * num_dim)
             point_normal = ScaleAndTranslate(point_normal)
             opt.zero_grad()
