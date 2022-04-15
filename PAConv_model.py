@@ -84,6 +84,8 @@ class PAConv(nn.Module):
 
         
     def forward(self, x, texture):
+        print("x:", x.shape)
+        print("tx:", texture.permute(0,2,1).shape)
         B, C, N = x.size()
         idx, _ = knn(x, k=self.k)
         xyz = get_scorenet_input(x, k=self.k, idx=idx)  # ScoreNet input
