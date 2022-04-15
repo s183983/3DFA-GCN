@@ -124,8 +124,8 @@ def train(args):
                            # "accuracy_w": acc_w
                            })
 
-            
-            print('Epoch: [%d / %d] Train_Iter: [%d /%d] loss: %.4f' % (epoch + 1, args.epochs, iters, len(train_loader), loss))
+            if (iters+1)%25==0:
+                print('Epoch: [%d / %d] Train_Iter: [%d /%d] loss: %.4f' % (epoch + 1, args.epochs, iters, len(train_loader), loss))
        
         L1_mean, L2_mean = 0,0
         model.eval()
