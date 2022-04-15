@@ -89,7 +89,8 @@ class MeshDataset(Dataset):
     
 class PrintDataset(Dataset):
     def __init__(self, root, mode, batch_size, num_points=3346, use_texture=False):
-        files = glob.glob(os.path.join(root,mode,"*.vtk")).sort()
+        files = glob.glob(os.path.join(root,mode,"*.vtk"))
+        files.sort()
         self.file_list = [files[0] for _ in range(batch_size)]
         self.file_name = os.path.basename(files[0]).split('.')[0]
         self.lab_dir = os.path.join(root,"labels")
