@@ -62,7 +62,7 @@ def train(args):
     val_loader = DataLoader(val_set, batch_size=args.batch_size, 
                             num_workers=args.num_workers, shuffle=True, drop_last=True)
     
-    print_set = MeshDataset(root,"val", args.batch_size, args.num_points)
+    print_set = PrintDataset(root,"val", args.batch_size, args.num_points)
     print_loader = DataLoader(print_set, batch_size=args.batch_size, shuffle=False, drop_last=False)
     # data argument
     ScaleAndTranslate = aug.PointcloudScaleAndTranslate()
@@ -225,7 +225,7 @@ def test(args):
     val_loader = DataLoader(val_set, batch_size=args.batch_size,
                             num_workers=args.num_workers, shuffle=True, drop_last=False)
     
-    print_set = MeshDataset(root,"test", args.batch_size, args.num_points)
+    print_set = PrintDataset(root,"test", args.batch_size, args.num_points)
     print_loader = DataLoader(print_set, batch_size=args.batch_size, shuffle=False, drop_last=False)
     # data argument
     ScaleAndTranslate = aug.PointcloudScaleAndTranslate()
