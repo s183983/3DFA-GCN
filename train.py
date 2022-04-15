@@ -139,8 +139,8 @@ def train(args):
                 loss = criterion(pred_heatmap, seg.permute(0, 2, 1).contiguous())
                 loss_val = loss_val + loss
                 
-                L2 = np.sqrt(np.power(pred_heatmap-seg.permute(0, 2, 1),2).sum(2).sum(1))
-                L1 = np.abs(pred_heatmap-seg.permute(0, 2, 1)).sum(2).sum(1)
+                L2 = torch.sqrt(torch.pow(pred_heatmap-seg.permute(0, 2, 1),2).sum(2).sum(1))
+                L1 = torch.abs(pred_heatmap-seg.permute(0, 2, 1)).sum(2).sum(1)
                 L1_mean += L1.sum()
                 L2_mean += L2.sum()
                 
@@ -256,8 +256,8 @@ def test(args):
             point_normal = point_normal.permute(0, 2, 1)
             pred_heatmap = model(point_normal)
             
-            L2 = np.sqrt(np.power(pred_heatmap-seg.permute(0, 2, 1),2).sum(2).sum(1))
-            L1 = np.abs(pred_heatmap-seg.permute(0, 2, 1)).sum(2).sum(1)
+            L2 = torch.sqrt(torch.pow(pred_heatmap-seg.permute(0, 2, 1),2).sum(2).sum(1))
+            L1 = torch.abs(pred_heatmap-seg.permute(0, 2, 1)).sum(2).sum(1)
             
         L1_mean += L1.sum()
         L2_mean += L2.sum()
