@@ -93,6 +93,9 @@ class PAConv(nn.Module):
         if self.use_texture:
             tx = get_graph_feature(texture.permute(0, 2, 1), k=self.k, idx=idx)
             tx = x.permute(0, 3, 1, 2)  # b,2cin,n,k
+            print("x:", x.shape)
+            print("tx:", tx.shape)
+
             x = torch.concat((x,tx),dim=1)
         x = F.relu(self.conv1(x))
         x1 = x.max(dim=-1, keepdim=False)[0]
