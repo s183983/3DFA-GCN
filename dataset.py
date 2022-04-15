@@ -83,7 +83,7 @@ class MeshDataset(Dataset):
         vertices = vertices[choice, :]
         label = label[choice]
         
-        return vertices, landmarks, label
+        return torch.from_numpy(vertices), torch.from_numpy(landmarks), torch.from_numpy(label)
     
     
     
@@ -106,7 +106,7 @@ class PrintDataset(Dataset):
         
         self.mesh_points = len(vertices)
         
-        self.sample_size = np.floor(self.mesh_points/batch_size)
+        self.sample_size = np.floor(self.mesh_points/batch_size, dtype=np.int32)
         self.indices = np.arange(self.mesh_points)
         np.random.shuffle(self.indices)
         poly = np.array(dsa.WrapDataObject(reader.GetOutput()).Polygons)
@@ -153,4 +153,4 @@ class PrintDataset(Dataset):
         vertices = vertices[choice, :]
         label = label[choice]
         
-        return vertices, landmarks, label, choice
+        return torch.from_numpy(vertices), torch.from_numpy(landmarks), torch.from_numpy(label), choice
