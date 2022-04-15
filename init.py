@@ -16,6 +16,8 @@ def _init_(args):
         os.makedirs('checkpoints/'+args.exp_name)
     if not os.path.exists('checkpoints/'+args.exp_name+'/'+'models'):
         os.makedirs('checkpoints/'+args.exp_name+'/'+'models')
+    if not os.path.exists('checkpoints/'+args.exp_name+'/'+'meshes'):
+        os.makedirs('checkpoints/'+args.exp_name+'/'+'meshes')
     # os.system('cp My_main.py checkpoints'+'/'+args.exp_name+'/'+'My_main.py.backup')
     # os.system('cp My_model.py checkpoints' + '/' + args.exp_name + '/' + 'My_model.py.backup')
     # os.system('cp My_util.py checkpoints' + '/' + args.exp_name + '/' + 'My_util.py.backup')
