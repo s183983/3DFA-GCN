@@ -158,7 +158,7 @@ class PrintDataset(Dataset):
         
         if self.use_texture:
             textures = loaded["texture"]
-            textures = textures[choice].astype(np.float64)
+            textures = textures[choice].astype(np.float32)
             textures = textures/255*2-1
         else:
             textures = np.empty(0)

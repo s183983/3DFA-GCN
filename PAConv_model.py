@@ -102,6 +102,7 @@ class PAConv(nn.Module):
             x = torch.concat((x,tx),dim=1)
         x = F.relu(self.conv1(x))
         x1 = x.max(dim=-1, keepdim=False)[0]
+        assert not torch.isnan(x1).any(), "x1 is nan :("
         # replace the last 4 DGCNN-EdgeConv with PAConv:
         """CUDA implementation of PAConv: (presented in the supplementary material of the paper)"""
         """feature transformation:"""
@@ -110,35 +111,44 @@ class PAConv(nn.Module):
         """assemble with scores:"""
         x = assemble_dgcnn(score=score2, point_input=x2, center_input=center2, knn_idx=idx, aggregate='sum')
         x2 = F.relu(self.bn2(x))
+        assert not torch.isnan(x2).any(), "x2 is nan :("
 
         x3, center3 = feat_trans_dgcnn(point_input=x2, kernel=self.matrice3, m=self.m3)
         score3 = self.scorenet3(xyz, calc_scores=self.calc_scores, bias=0)
         x = assemble_dgcnn(score=score3, point_input=x3, center_input=center3, knn_idx=idx, aggregate='sum')
         x3 = F.relu(self.bn3(x))
-
+        assert not torch.isnan(x3).any(), "x3 is nan :("
+        
         x4, center4 = feat_trans_dgcnn(point_input=x3, kernel=self.matrice4, m=self.m4)
         score4 = self.scorenet4(xyz, calc_scores=self.calc_scores, bias=0)
         x = assemble_dgcnn(score=score4, point_input=x4, center_input=center4, knn_idx=idx, aggregate='sum')
         x4 = F.relu(self.bn4(x))
-
+        assert not torch.isnan(x4).any(), "x4 is nan :("
+        
         x5, center5 = feat_trans_dgcnn(point_input=x4, kernel=self.matrice5, m=self.m5)
         score5 = self.scorenet5(xyz, calc_scores=self.calc_scores, bias=0)
         x = assemble_dgcnn(score=score5, point_input=x5, center_input=center5, knn_idx=idx, aggregate='sum')
         x5 = F.relu(self.bn5(x))
+        assert not torch.isnan(x5).any(), "x5 is nan :("
 
         xx = torch.cat((x1, x2, x3, x4, x5), dim=1)
 
         xc = F.relu(self.convt(xx))
         xc = F.adaptive_max_pool1d(xc, 1).view(B, -1)
-        cls = xc.view(B, 1024, 1).repeat(1, 1, N)
-        x = torch.cat((xx, cls), dim=1)
+        xcls = xc.view(B, 1024, 1).repeat(1, 1, N)
+        x = torch.cat((xx, xcls), dim=1)
         x = F.relu(self.conv6(x))
+        assert not torch.isnan(x).any(), "conv6 is nan :("
+
         x = self.dp1(x)
         x = F.relu(self.conv7(x))
+        assert not torch.isnan(x).any(), "conv7 is nan :("
         x = self.dp2(x)
         x = F.relu(self.conv8(x))
+        assert not torch.isnan(x).any(), "conv8 is nan :("
         """ Output the heatmap regression result: """
         x = self.conv9(x) 
+        assert not torch.isnan(x).any(), "conv9 is nan :("
         return x
 
 
