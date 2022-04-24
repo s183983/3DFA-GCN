@@ -137,7 +137,7 @@ class PrintDataset(Dataset):
         try:
             label_load = loaded["label"]
         except:
-            label_load = loaded["label"]
+            label_load = loaded["labels"]
         label = label_load.T
         
         poly = np.array(dsa.WrapDataObject(reader.GetOutput()).Polygons)
