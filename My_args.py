@@ -37,6 +37,7 @@ parser.add_argument('--weight_decay', type=float, default=0, metavar='WD', help=
 
 
 # data process args
+parser.add_argument('--full_data', type=bool, default=False, help='use full scans as data')
 parser.add_argument('--max_threshold', default=10, type=float, help='the maximum threshold of error_rate')
 parser.add_argument('--sample_way', type=str, default='FPS', metavar='sw', choices=['FPS', 'Random', 'CAGQ', 'Geometric'])
 parser.add_argument('--need_resample', type=bool, default=False, help='resample data with different number of points')

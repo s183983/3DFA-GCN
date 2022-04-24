@@ -29,14 +29,16 @@ from util import main_sample, save_vtk
 from PAConv_model import PAConv
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-root = 'C:/Users/lowes/OneDrive/Skrivebord/DTU/8_Semester/Advaced_Geometric_DL/BU_3DFE_3DHeatmaps_crop_2/'
 
 def train(args):
     
     if platform == "win32":
         root = 'C:/Users/lowes/OneDrive/Skrivebord/DTU/8_Semester/Advaced_Geometric_DL/BU_3DFE_3DHeatmaps_crop_2/'
     else:
-        root = "/scratch/s183983/data_cropped/" 
+        if args.full_data:
+            root = "/scratch/s183983/BU_3DFE_full/" 
+        else:
+            root = "/scratch/s183983/data_cropped/" 
         #if opt.user=="s183983" \
             #else "/scratch/s183986/BU_3DFE_3DHeatmaps_crop/"
             
