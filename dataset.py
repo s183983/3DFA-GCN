@@ -134,7 +134,10 @@ class PrintDataset(Dataset):
 
         lab_name = os.path.join(self.lab_dir,os.path.basename(file).split('.')[0]+".npz")
         loaded = np.load(lab_name)
-        label_load = loaded["label"]
+        try:
+            label_load = loaded["label"]
+        except:
+            label_load = loaded["label"]
         label = label_load.T
         
         poly = np.array(dsa.WrapDataObject(reader.GetOutput()).Polygons)
