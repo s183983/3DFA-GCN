@@ -67,7 +67,8 @@ class MeshDataset(Dataset):
 
         lab_name = os.path.join(self.lab_dir,os.path.basename(file).split('.')[0]+".npz")
         loaded = np.load(lab_name)
-        label_load = loaded["label"]
+        #TODO
+        label_load = loaded["labels"]
         label = label_load.T
         
         
