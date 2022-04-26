@@ -98,7 +98,7 @@ def predict_hm(args):
         np.savetxt(os.path.join(lm_folder,print_set.file_name+"_lm_MDS.txt"),lm.cpu().numpy())
         
         lm_l2.append(torch.sqrt(torch.pow(lm.cpu()-torch.from_numpy(print_set.landmarks),2).sum(0)).mean().numpy())
-        hm_l2.append(torch.sqrt(torch.pow(pred_labels-print_set.label,2).sum(0)).mean().numpy())
+        hm_l2.append(torch.sqrt(torch.pow(pred_labels-torch.from_numpy(print_set.label),2).sum(0)).mean().numpy())
         
     np.savez(os.path.join(lm_folder, "lm_hm_l2_error.npz"), lm = np.array(lm_l2), hm = np.array(hm_l2))
     for idx in range(pred_labels.shape[1]):
