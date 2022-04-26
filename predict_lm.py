@@ -97,8 +97,8 @@ def predict_hm(args):
         lm = landmark_regression(torch.from_numpy(print_set.points), torch.from_numpy(pred_labels), 100)
         np.savetxt(os.path.join(lm_folder,print_set.file_name+"_lm_MDS.txt"),lm.cpu().numpy())
         
-        lm_l2.append(torch.sqrt(torch.pow(lm-print_set.landmarks,2).sum(0)).mean().cpu().numpy())
-        hm_l2.append(torch.sqrt(torch.pow(pred_labels-print_set.label,2).sum(0)).mean().cpu().numpy())
+        lm_l2.append(torch.sqrt(torch.pow(lm.cpu()-print_set.landmarks,2).sum(0)).mean().numpy())
+        hm_l2.append(torch.sqrt(torch.pow(pred_labels-print_set.label,2).sum(0)).mean().numpy())
         
     np.savez(os.path.join(lm_folder, "lm_hm_l2_error.npz"), lm = np.array(lm_l2), hm = np.array(hm_l2))
     for idx in range(pred_labels.shape[1]):
