@@ -227,7 +227,7 @@ def landmark_regression(shape, Heatmap, regression_point_num):
     shape_ext = shape_ext * w2 / w1  
     ### Get the 3D landmark coordinates after registration ###
     landmark3D = np.array([get_rigid(shape_ext[i], shape_ext_T[i])[:, 3] for i in range(Heatmap.shape[1])])
-    return torch.from_numpy(landmark3D).unsqueeze(0).to(device)
+    return torch.from_numpy(landmark3D).to(device)
 
 def get_rigid(src, dst):
     src_mean = src.mean(0)
@@ -281,7 +281,7 @@ def save_vtk( pd, labels, o_name ):
 
 if __name__=="__main__":
     
-    path = 'C:/Users/lowes/OneDrive/Skrivebord/DTU/8_Semester/Advaced_Geometric_DL/BU_3DFE_3DHeatmaps_crop_2'
+    path = 'C:/Users/lowes/OneDrive/Skrivebord/DTU/8_Semester/Advaced_Geometric_DL/BU_3DFE_full'
     vtk_files = glob.glob(os.path.join(path,"**/*.vtk"))
     file = vtk_files[0]
     
@@ -290,10 +290,14 @@ if __name__=="__main__":
     reader.Update()
     pd = reader.GetOutput()
     points = np.array(reader.GetOutput().GetPoints().GetData())
-
     
     poly = np.array(dsa.WrapDataObject(reader.GetOutput()).Polygons)
     faces = np.reshape(poly,(-1,4))[:,1:4]
-    labels = np.arange(len(points))/len(points)
-    save_name = os.path.join(path,os.path.basename(file)+'_'+str(1)+'_hm42.vtk')
-    save_vtk(pd,labels, save_name)
+    
+    lab_name = os.path.join(path,"labels",os.path.basename(file).split('.')[0]+".npz")
+    loaded = np.load(lab_name)
+    label_load = loaded["labels"]
+    label = label_load.T
+    
+    lm = landmark_regression(torch.from_numpy(points), torch.from_numpy(label), 100)
+    np.savetxt(os.path.join(path,os.path.basename(file).split('.')[0]+"_lm_250.txt"),lm.cpu().numpy())

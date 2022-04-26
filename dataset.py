@@ -96,21 +96,28 @@ class MeshDataset(Dataset):
     
     
 class PrintDataset(Dataset):
-    def __init__(self, root, mode, batch_size, num_points=3346, use_texture=False):
+    def __init__(self, root, mode, batch_size, num_points=3346, use_texture=False, file_id = 0):
         files = glob.glob(os.path.join(root,mode,"*.vtk"))
         files.sort()
-        self.file_list = [files[0] for _ in range(batch_size)]
+        self.file_list = [files[file_id] for _ in range(batch_size)]
         self.file_name = os.path.basename(files[0]).split('.')[0]
         self.lab_dir = os.path.join(root,"labels")
         self.land_dir = os.path.join(root,"land_marks")
         self.use_texture = use_texture
         self.num_points = num_points
         self.batch_size = batch_size
-        file = self.file_list[0]
+        file = self.file_list[file_id]
+        
         reader = vtk.vtkPolyDataReader()
         reader.SetFileName(file)
         reader.Update()
         vertices = np.array(reader.GetOutput().GetPoints().GetData())
+        
+        lab_name = os.path.join(self.lab_dir,os.path.basename(file).split('.')[0]+".npz")
+        loaded = np.load(lab_name)
+        #TODO
+        label_load = loaded["labels"]
+        self.label = label_load.T
         
         self.mesh_points = len(vertices)
         
@@ -121,34 +128,23 @@ class PrintDataset(Dataset):
         self.points = vertices
         self.faces = np.reshape(poly,(-1,4))[:,1:4]
         self.pd = reader.GetOutput()
+        
+        self.landmarks = loaded["landmarks"]
+        
+        if self.use_texture:
+            self.textures = loaded["texture"]
+
 
     def __len__(self):
         return len(self.file_list)
 
     def __getitem__(self, idx):
-        file = self.file_list[idx]
-        reader = vtk.vtkPolyDataReader()
-        reader.SetFileName(file)
-        reader.Update()
-        vertices = np.array(reader.GetOutput().GetPoints().GetData())
         
-
-        lab_name = os.path.join(self.lab_dir,os.path.basename(file).split('.')[0]+".npz")
-        loaded = np.load(lab_name)
-        #TODO
-        label_load = loaded["labels"]
-        label = label_load.T
-        
-        poly = np.array(dsa.WrapDataObject(reader.GetOutput()).Polygons)
-        faces = np.reshape(poly,(-1,4))[:,1:4]
-        
-        
-        landmarks = np.zeros((84,3))
         
         sample = self.indices[idx*self.sample_size:] if idx==self.batch_size\
             else self.indices[idx*self.sample_size:(idx+1)*self.sample_size]
         
-        choices = np.arange(len(vertices))
+        choices = np.arange(self.mesh_points)
         
         choices = choices[np.isin(choices,sample,invert=True)]
         
@@ -159,14 +155,13 @@ class PrintDataset(Dataset):
         # remember to use the same seed during train and test for a getting stable result
         
         if self.use_texture:
-            textures = loaded["texture"]
-            textures = textures[choice].astype(np.float32)
+            textures = self.textures[choice].astype(np.float32)
             textures = textures/255*2-1
         else:
             textures = np.empty(0)
             
-        vertices = vertices[choice, :]
-        label = label[choice]
+        vertices = self.points[choice, :]
+        label = self.label[choice]
         
-        return torch.from_numpy(vertices), torch.from_numpy(landmarks), torch.from_numpy(label),\
+        return torch.from_numpy(vertices), torch.from_numpy(self.landmarks), torch.from_numpy(label),\
             torch.from_numpy(textures), choice
