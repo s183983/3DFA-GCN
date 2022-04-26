@@ -129,7 +129,7 @@ class PrintDataset(Dataset):
         self.faces = np.reshape(poly,(-1,4))[:,1:4]
         self.pd = reader.GetOutput()
         
-        self.landmarks = loaded["landmarks"]
+        self.landmarks = loaded["landmarks"][:self.label.shape[1]]
         
         if self.use_texture:
             self.textures = loaded["texture"]
