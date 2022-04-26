@@ -100,7 +100,7 @@ class PrintDataset(Dataset):
         files = glob.glob(os.path.join(root,mode,"*.vtk"))
         files.sort()
         self.file_list = [files[file_id] for _ in range(batch_size)]
-        self.file_name = os.path.basename(files[0]).split('.')[0]
+        self.file_name = os.path.basename(files[file_id]).split('.')[0]
         self.lab_dir = os.path.join(root,"labels")
         self.land_dir = os.path.join(root,"land_marks")
         self.use_texture = use_texture
