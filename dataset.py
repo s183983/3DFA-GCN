@@ -106,7 +106,7 @@ class PrintDataset(Dataset):
         self.use_texture = use_texture
         self.num_points = num_points
         self.batch_size = batch_size
-        file = self.file_list[file_id]
+        file = files[file_id]
         
         reader = vtk.vtkPolyDataReader()
         reader.SetFileName(file)
