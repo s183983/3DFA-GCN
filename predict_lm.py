@@ -69,12 +69,14 @@ def predict_hm(args):
         os.makedirs(lm_folder)
     test_list = glob.glob(os.path.join(root,'test',"*.vtk"))
     lm_l2, hm_l2 = [], []
+    model.eval()
+
     for file_id in range(len(test_list)):
         print_set = PrintDataset(root,"test", args.batch_size, args.num_points, use_texture=args.use_texture, file_id=file_id)
         print_loader = DataLoader(print_set, batch_size=args.batch_size, shuffle=False, drop_last=False)
         
         preds = np.full([print_set.batch_size, print_set.mesh_points, 83], np.nan)
-        
+        print("predicting lm for", print_set.file_name)
         for point, landmark, seg, texture, choice in print_loader:
             seg = torch.where(torch.isnan(seg), torch.full_like(seg, 0), seg)
             if args.no_cuda == False:
@@ -84,7 +86,6 @@ def predict_hm(args):
                 texture = texture.to(device)                     # seg: (Batch * point_num * landmark)
             point_normal = aug.normalize_data(point)           # point_normal : (Batch * num_point * num_dim)
             point_normal = ScaleAndTranslate(point_normal)
-            model.eval()
             with torch.no_grad():
                 point_normal = point_normal.permute(0, 2, 1)
                 pred_heatmap = model(point_normal,texture).cpu()
@@ -93,7 +94,9 @@ def predict_hm(args):
                 preds[i,choice[i],:] = (pred_heatmap[i,:,:]).T
                 
         pred_labels = np.nanmean(preds,axis=0)
-        assert not np.isnan(pred_labels).any(), "pred is nan, so nanmean not great"
+        if np.isnan(pred_labels).any():
+            print("pred is nan, :(")
+            continue
         lm = landmark_regression(torch.from_numpy(print_set.points), torch.from_numpy(pred_labels), 100)
         np.savetxt(os.path.join(lm_folder,print_set.file_name+"_lm_MDS.txt"),lm.cpu().numpy())
         
