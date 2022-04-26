@@ -93,7 +93,7 @@ def predict_hm(args):
                 preds[i,choice[i],:] = (pred_heatmap[i,:,:]).T
                 
         pred_labels = np.nanmean(preds,axis=0)
-        
+        assert not np.isnan(pred_labels).any(), "pred is nan, so nanmean not great"
         lm = landmark_regression(torch.from_numpy(print_set.points), torch.from_numpy(pred_labels), 100)
         np.savetxt(os.path.join(lm_folder,print_set.file_name+"_lm_MDS.txt"),lm.cpu().numpy())
         
