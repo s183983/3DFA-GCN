@@ -73,7 +73,7 @@ def train(args):
     MOMENTUM_DECCAY = 0.5
 
     # select a model to train
-    model = PAConv(args, 83).to(device)   # 68 in FaceScape; 8 in BU-3DFE and FRGC
+    model = PAConv(args, 84).to(device)   # 68 in FaceScape; 8 in BU-3DFE and FRGC
     model.apply(init.weight_init)
     model = nn.DataParallel(model)
 
@@ -121,10 +121,7 @@ def train(args):
             loss.backward()
             loss_epoch = loss_epoch + loss
             opt.step()
-            wandb.log({"loss_step": loss,
-                           # "accuracy": acc,
-                           # "accuracy_w": acc_w
-                           })
+
 
             if (iters+1)%25==0:
                 print('Epoch: [%d / %d] Train_Iter: [%d /%d] loss: %.4f' % (epoch + 1, args.epochs, iters, len(train_loader), loss))
@@ -149,28 +146,27 @@ def train(args):
                 
                 L2 = torch.sqrt(torch.pow(pred_heatmap-seg.permute(0, 2, 1),2).sum(2).sum(1))
                 L1 = torch.abs(pred_heatmap-seg.permute(0, 2, 1)).sum(2).sum(1)
-                L1_mean += L1.sum()
-                L2_mean += L2.sum()
-                
-        wandb.log({"train_loss": loss_epoch,
-                       "val_loss": loss_val,
-                       "epoch": epoch
+                L1_mean += L1.sum()/seg.shape[0]
+                L2_mean += L2.sum()/seg.shape[0]
+        L1_mean /= len(val_loader)
+        L2_mean /= len(val_loader)
+        wandb.log({"epoch": epoch,
+                   "train_loss": loss_epoch,
+                   "val_loss": loss_val,
+                   "test_L1_mean": L1_mean,
+                   "test_L2_mean": L2_mean
                        })   
                              
             
                 
-        L1_mean /= len(val_loader)
-        L2_mean /= len(val_loader)
-        wandb.log({"test_L1_mean": L1_mean,
-                       "test_L2_mean": L2_mean,
-                       })
+
         print('Epoch: [%d / %d], val L1: [%f], val L2: [%f]' % (epoch + 1, args.epochs, L1_mean, L2_mean))
         
         if (epoch + 1) % 5 == 0:
             torch.save(model.state_dict(),
             './checkpoints/%s/models/model_epoch_%d.pt' % (args.exp_name, epoch+1))
             
-            preds = np.full([print_set.batch_size, print_set.mesh_points, 83], np.nan)
+            preds = np.full([print_set.batch_size, print_set.mesh_points, 84], np.nan)
             model.eval()
             for point, landmark, seg, texture, choice in print_loader:
                 seg = torch.where(torch.isnan(seg), torch.full_like(seg, 0), seg)
@@ -244,7 +240,7 @@ def test(args):
 
 
     # select a model to train
-    model = PAConv(args, 83).to(device)   # 68 in FaceScape; 83 in BU-3DFE and FRGC
+    model = PAConv(args, 84).to(device)   # 68 in FaceScape; 84 in BU-3DFE and FRGC
     model = nn.DataParallel(model)
     names = glob.glob('./checkpoints/%s/models/*.pt' % (args.exp_name))
     names.sort()
@@ -284,7 +280,7 @@ def test(args):
     wandb.log({"test_L1_mean": L1_mean,
                    "test_L2_mean": L2_mean,
                    })  
-    preds = np.full([print_set.batch_size, print_set.mesh_points, 83], np.nan)
+    preds = np.full([print_set.batch_size, print_set.mesh_points, 84], np.nan)
     
     for point, landmark, seg, texture, choice in print_loader:
         seg = torch.where(torch.isnan(seg), torch.full_like(seg, 0), seg)
@@ -320,10 +316,11 @@ if __name__ == "__main__":
     
     wandb.init(project="3DFA-GCN", entity="s183983")
     wandb.config = {
-      "learning_rate": args.lr,
       "epochs": args.epochs,
       "batch_size": args.batch_size,
-      "num_points": args.num_points
+      "num_points": args.num_points,
+      "k": args.k,
+      
     }
 
     train(args)
