@@ -229,6 +229,31 @@ def landmark_regression(shape, Heatmap, regression_point_num):
     landmark3D = np.array([get_rigid(shape_ext[i], shape_ext_T[i])[:, 3] for i in range(Heatmap.shape[1])])
     return torch.from_numpy(landmark3D).to(device)
 
+def lm_weighted_avg(pd, heatmap, n_points = 100):
+    locator = vtk.vtkCellLocator()
+    locator.SetDataSet(pd)
+    locator.BuildLocator()
+    points = np.array(pd.GetPoints().GetData())
+    prediction_vector = []
+    for i in range(heatmap.shape[0]):
+        sorted_index_array = 0
+        rslt = 0
+        sorted_array = 0
+        x = heatmap[i,:]
+        sorted_index_array = np.argsort(x)
+        sorted_array = x[sorted_index_array]
+        rslt = sorted_array[-n_points:]
+        xx = np.expand_dims(rslt,0)@points[sorted_index_array[-n_points:],:] / rslt.sum()
+        y = xx.squeeze()
+        cellId = vtk.reference(0)
+        c = [0.0, 0.0, 0.0]
+        subId = vtk.reference(0)
+        d = vtk.reference(0.0)
+        locator.FindClosestPoint(y, c, cellId, subId, d)
+        prediction_vector.append(c)
+        
+    return np.asarray(prediction_vector)
+
 def get_rigid(src, dst):
     src_mean = src.mean(0)
     dst_mean = dst.mean(0)
