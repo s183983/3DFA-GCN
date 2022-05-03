@@ -11,7 +11,7 @@ import vtk
 import numpy as np
 
 # path = r"C:\Users\lowes\OneDrive\Skrivebord\DTU\8_semester\Advaced_Geometric_DL\BU_3DFE_full"
-path = "/scratch/s183983/BU_3DFE_full/" 
+path = "/scratch/s183983/BU_3DFE_full" 
 """
 vtk_files = glob.glob(os.path.join(path,"**/*.vtk"))
 
@@ -43,9 +43,9 @@ for file in tqdm.tqdm(files):
     
     full_file = os.path.join(path, "labels", os.path.basename(file))
     full_loaded = np.load(full_file)
-    lab = loaded["labels"]
-    tex = loaded["texture"]
-    lms = loaded["landmarks"]
+    lab = full_loaded["labels"]
+    tex = full_loaded["texture"]
+    lms = full_loaded["landmarks"]
     
     labels = np.vstack((lab, lab_84))
     
