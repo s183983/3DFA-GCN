@@ -10,8 +10,8 @@ import tqdm
 import vtk
 import numpy as np
 
-path = r"C:\Users\lowes\OneDrive\Skrivebord\DTU\8_semester\Advaced_Geometric_DL\BU_3DFE_full"
-path = "/scratch/s183983/data_cropped/" 
+# path = r"C:\Users\lowes\OneDrive\Skrivebord\DTU\8_semester\Advaced_Geometric_DL\BU_3DFE_full"
+path = "/scratch/s183983/BU_3DFE_full/" 
 """
 vtk_files = glob.glob(os.path.join(path,"**/*.vtk"))
 
