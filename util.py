@@ -235,6 +235,8 @@ def lm_weighted_avg(pd, heatmap, n_points = 100):
     locator.BuildLocator()
     points = np.array(pd.GetPoints().GetData())
     prediction_vector = []
+    heatmap.shape[0]>heatmap.shape[1]
+    heatmap = heatmap.T
     for i in range(heatmap.shape[0]):
         sorted_index_array = 0
         rslt = 0
