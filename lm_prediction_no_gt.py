@@ -109,6 +109,8 @@ def predict_lm_no_gt(args):
                 preds[print_set.batch_size+i,choice[i],:] = (pred_heatmap[i,:,:]).T
         pred_labels = np.nanmean(preds,axis=0)
         
+        pred_labels = np.nan_to_num(pred_labels)
+        
         if np.isnan(pred_labels).any():
             print("pred is nan, :(")
             continue
