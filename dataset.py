@@ -127,7 +127,7 @@ class PrintDataset(Dataset):
         self.faces = np.reshape(poly,(-1,4))[:,1:4]
         self.pd = reader.GetOutput()
         if no_gt:
-            self.no_gt = False
+            self.no_gt = True
         else:
             
             label_load = loaded["labels"]
