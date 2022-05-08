@@ -113,7 +113,7 @@ def predict_lm_no_gt(args):
         
         if np.isnan(pred_labels).any():
             print("pred is nan, :(")
-            continue
+            
         
         lm = landmark_regression(torch.from_numpy(print_set.points), torch.from_numpy(pred_labels), 100)
         lm_avg = lm_weighted_avg(print_set.pd, pred_labels)
