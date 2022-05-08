@@ -50,7 +50,7 @@ def predict_lm(args):
 
 
     # select a model to train
-    model = PAConv(args, 83).to(device)   # 68 in FaceScape; 83 in BU-3DFE and FRGC
+    model = PAConv(args, 84).to(device)   # 68 in FaceScape; 84 in BU-3DFE and FRGC
     model = nn.DataParallel(model)
     names = glob.glob('./checkpoints/%s/models/*.pt' % (args.exp_name))
     names.sort()
@@ -72,7 +72,7 @@ def predict_lm(args):
         print_set = PrintDataset(root,"test", args.batch_size, args.num_points, use_texture=args.use_texture, file_id=file_id)
         print_loader = DataLoader(print_set, batch_size=args.batch_size, shuffle=False, drop_last=False)
         
-        preds = np.full([print_set.batch_size, print_set.mesh_points, 83], np.nan)
+        preds = np.full([print_set.batch_size, print_set.mesh_points, 84], np.nan)
         print("predicting lm for", print_set.file_name)
         for point, landmark, seg, texture, choice in print_loader:
             seg = torch.where(torch.isnan(seg), torch.full_like(seg, 0), seg)
