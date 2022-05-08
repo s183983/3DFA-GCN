@@ -37,7 +37,7 @@ def predict_lm_no_gt(args):
         root = 'C:/Users/lowes/OneDrive/Skrivebord/DTU/8_Semester/Advaced_Geometric_DL/BU_3DFE_3DHeatmaps_crop_2/'
     else:
         if args.full_data:
-            root = "/scratch/s183983/MBJ/" 
+            root = "/scratch/s183983/MBJ_full/" 
         else:
             root = "/scratch/s183983/data_cropped/" 
         #if opt.user=="s183983" \
