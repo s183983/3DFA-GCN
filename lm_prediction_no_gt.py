@@ -81,7 +81,7 @@ def predict_lm_no_gt(args):
                                  no_gt = True)
         print_loader = DataLoader(print_set, batch_size=args.batch_size, shuffle=False, drop_last=False)
         
-        preds = np.full([print_set.batch_size, print_set.mesh_points, 84], np.nan)
+        preds = np.full([2*print_set.batch_size, print_set.mesh_points, 84], np.nan)
         print("predicting lm for", print_set.file_name)
         for point, texture, choice in print_loader:
             if args.no_cuda == False:
@@ -95,7 +95,18 @@ def predict_lm_no_gt(args):
                 
             for i in range(print_loader.batch_size):
                 preds[i,choice[i],:] = (pred_heatmap[i,:,:]).T
+        for point, texture, choice in print_loader:
+            if args.no_cuda == False:
+                point = point.to(device)                   # point: (Batch * num_point * num_dim)
+                texture = texture.to(device)                     # seg: (Batch * point_num * landmark)
+            point_normal = aug.normalize_data(point)           # point_normal : (Batch * num_point * num_dim)
+            point_normal = ScaleAndTranslate(point_normal)
+            with torch.no_grad():
+                point_normal = point_normal.permute(0, 2, 1)
+                pred_heatmap = model(point_normal,texture).cpu()
                 
+            for i in range(print_loader.batch_size):
+                preds[print_set.batch_size+i,choice[i],:] = (pred_heatmap[i,:,:]).T
         pred_labels = np.nanmean(preds,axis=0)
         
         if np.isnan(pred_labels).any():
