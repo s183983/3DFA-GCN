@@ -65,10 +65,12 @@ def predict_lm_no_gt(args):
 
     model.eval()
     mesh_folder = os.path.join('./checkpoints',args.exp_name,'meshes_MBJ')
+    if not os.path.exists(mesh_folder):
+        os.makedirs(mesh_folder)
     lm_folder = os.path.join('./checkpoints',args.exp_name,'landmarks_MBJ')
     if not os.path.exists(lm_folder):
         os.makedirs(lm_folder)
-    test_list = glob.glob(os.path.join(root,'test',"*.vtk"))
+    test_list = glob.glob(os.path.join(root,'meshes',"*.vtk"))
     model.eval()
 
     for file_id in range(len(test_list)):
