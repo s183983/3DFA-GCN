@@ -250,8 +250,7 @@ def lm_weighted_avg(pd, heatmap, n_points = 100):
         subId = vtk.reference(0)
         d = vtk.reference(0.0)
         locator.FindClosestPoint(y, c, cellId, subId, d)
-        prediction_vector.append(c)
-        
+        prediction_vector.append(c)  
     return np.asarray(prediction_vector)
 
 def get_rigid(src, dst):

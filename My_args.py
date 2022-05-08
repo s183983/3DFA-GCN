@@ -23,7 +23,7 @@ parser.add_argument('--eval', type=bool, default=False, help='evaluate the model
 parser.add_argument('--num_workers', type=int, default=1, metavar='num_workers', help='Number of workers)')
 parser.add_argument('--batch_size', type=int, default=8, metavar='batch_size', help='Size of batch)')
 parser.add_argument('--test_batch_size', type=int, default=1, metavar='batch_size', help='Size of batch)')
-parser.add_argument('--epochs', type=int, default=250, metavar='N', help='number of episode to train')
+parser.add_argument('--epochs', type=int, default=200, metavar='N', help='number of episode to train')
 parser.add_argument('--dropout', type=float, default=0.5, help='dropout rate')
 
 
