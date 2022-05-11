@@ -129,7 +129,7 @@ class PrintDataset(Dataset):
         if no_gt:
             self.no_gt = True
         else:
-            
+            self.no_gt = False
             label_load = loaded["labels"]
             self.label = label_load.T
             self.landmarks = loaded["landmarks"][:self.label.shape[1]]

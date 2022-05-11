@@ -136,7 +136,19 @@ def fps(xyz, M):
         inds = torch.max(dists, dim=1)[1]
     return centroids
 
+def fps_single(points,n_points):
+    choice = fps(torch.from_numpy(points).unsqueeze(0).to(device), n_points)
+    return np.array(choice.squeeze().cpu())
 
+def fps_sample(points, seg, tex, n_points):
+    FPS_matrix = [fps(torch.from_numpy(points[i]).unsqueeze(0).to(device), n_points) for i in range(len(points))]
+    # print('Finish the caculation of random matrix')
+    Heat_data_sample = [np.array(points[j])[FPS_matrix[j].squeeze(0).cpu(), :] for j in range(len(points))]
+    shape_sample = [np.array(seg[j])[FPS_matrix[j].squeeze(0).cpu(), :] for j in range(len(seg))]
+    tex_sample = [np.array(tex[j])[FPS_matrix[j].squeeze(0).cpu(), :] for j in range(len(tex))]
+    
+    return Heat_data_sample, shape_sample, tex_sample
+    
 def random_sample(shape_all, Heat_data_all, number_point, rand_seed, sample_way, dataset):    
     print('Start load landmark index data! ')
     landmark_index_select_all = load_landmark_index(dataset)
@@ -324,6 +336,30 @@ if __name__=="__main__":
     loaded = np.load(lab_name)
     label_load = loaded["labels"]
     label = label_load.T
+    tex = loaded["texture"]
     
-    lm = landmark_regression(torch.from_numpy(points), torch.from_numpy(label), 100)
-    np.savetxt(os.path.join(path,os.path.basename(file).split('.')[0]+"_lm_250.txt"),lm.cpu().numpy())
+    
+    choice2 = fps_single(points, 5000)
+    
+    new_p, new_l, new_t = fps_sample(np.stack((points,points)), np.stack((label,label)), np.stack((tex,tex)), 5000)
+    
+    import matplotlib.pyplot as plt
+    fig = plt.figure(figsize=(4,4))
+
+    ax = fig.add_subplot(111, projection='3d')
+    
+    ax.scatter(new_p[0][:,0], new_p[0][:,2], new_p[0][:,2]) # plot the point (2,3,4) on the figure
+    
+    plt.show()
+    
+    fig = plt.figure(figsize=(4,4))
+
+    ax = fig.add_subplot(111, projection='3d')
+    
+    ax.scatter(points[:,0], points[:,2], points[:,2]) # plot the point (2,3,4) on the figure
+    
+    plt.show()
+    
+    
+    # lm = landmark_regression(torch.from_numpy(points), torch.from_numpy(label), 100)
+    # np.savetxt(os.path.join(path,os.path.basename(file).split('.')[0]+"_lm_250.txt"),lm.cpu().numpy())
