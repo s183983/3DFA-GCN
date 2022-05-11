@@ -5,6 +5,7 @@ import os
 import glob
 import vtk
 from vtk.numpy_interface import dataset_adapter as dsa
+from util import fps_single
 
 
 
@@ -147,12 +148,13 @@ class PrintDataset(Dataset):
         sample = self.indices[idx*self.sample_size:] if idx==self.batch_size\
             else self.indices[idx*self.sample_size:(idx+1)*self.sample_size]
         
-        choices = np.arange(self.mesh_points)
+        # choices = np.arange(self.mesh_points)
         
-        choices = choices[np.isin(choices,sample,invert=True)]
+        # choices = choices[np.isin(choices,sample,invert=True)]
         
-        choice = np.random.choice(choices, self.num_points-len(sample), replace=False)
-        choice = np.concatenate((choice,sample), axis=0)
+        # choice = np.random.choice(choices, self.num_points-len(sample), replace=False)
+        # choice = np.concatenate((choice,sample), axis=0)
+        choice = fps_single(self.points,self.num_points)
         # resample
         # note that the number of points in some points clouds is less than 2048, thus use random.choice
         # remember to use the same seed during train and test for a getting stable result
