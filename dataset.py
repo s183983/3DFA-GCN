@@ -129,6 +129,7 @@ class PrintDataset(Dataset):
         self.pd = reader.GetOutput()
         if no_gt:
             self.no_gt = True
+            
         else:
             self.no_gt = False
             label_load = loaded["labels"]

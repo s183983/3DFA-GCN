@@ -60,10 +60,12 @@ def predict_lm(args):
     model.load_state_dict(ckpt)
 
     model.eval()
-
+    hm_folder = os.path.join('./checkpoints',args.exp_name,'heatmaps')
     lm_folder = os.path.join('./checkpoints',args.exp_name,'landmarks')
     if not os.path.exists(lm_folder):
         os.makedirs(lm_folder)
+    if not os.path.exists(hm_folder):
+        os.makedirs(hm_folder)
     test_list = glob.glob(os.path.join(root,'test',"*.vtk"))
     lm_l2, lm_l2_avg, hm_l2 = [], [], []
     model.eval()
@@ -87,8 +89,11 @@ def predict_lm(args):
                 point_normal = point_normal.permute(0, 2, 1)
                 pred_heatmap = model(point_normal,texture).cpu()
                 
+            if np.isnan(np.array(pred_heatmap)).any():
+                print("actual pred is nan, :(")
+                continue
             for i in range(print_loader.batch_size):
-                preds[i,choice[i],:] = (pred_heatmap[i,:,:]).T
+                preds[i,choice[i],:] = np.array(pred_heatmap[i,:,:]).T
                 
         pred_labels = np.nanmean(preds,axis=0)
         if np.isnan(pred_labels).any():
@@ -98,6 +103,8 @@ def predict_lm(args):
         lm_avg = lm_weighted_avg(print_set.pd, pred_labels)
         np.savetxt(os.path.join(lm_folder,print_set.file_name+"_lm_MDS.txt"),lm.cpu().numpy())
         np.savetxt(os.path.join(lm_folder,print_set.file_name+"_lm_AVG.txt"),lm_avg)
+        np.savez(os.path.join(hm_folder,print_set.file_name+"_hm"),pred_labels=pred_labels)
+
         
         lm_l2_avg.append(np.sqrt(np.power(print_set.landmarks-lm_avg,2).sum().mean()))
         lm_l2.append(torch.sqrt(torch.pow(lm.cpu()-torch.from_numpy(print_set.landmarks),2).sum(0)).mean().numpy())

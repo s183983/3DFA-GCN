@@ -331,12 +331,22 @@ if __name__=="__main__":
     
     poly = np.array(dsa.WrapDataObject(reader.GetOutput()).Polygons)
     faces = np.reshape(poly,(-1,4))[:,1:4]
+    decimator = vtk.vtkDecimatePro()
+    decimator = vtk.vtkQuadricDecimation()
+    decimator.SetInputData(pd)
+    decimator.SetTargetReduction(1-20000/len(faces))
+    decimator.Update()
+    pd = decimator.GetOutput()
+    points = np.array(pd.GetPoints().GetData())
     
+    poly = np.array(dsa.WrapDataObject(reader.GetOutput()).Polygons)
+    faces = np.reshape(poly,(-1,4))[:,1:4]
     lab_name = os.path.join(path,"labels",os.path.basename(file).split('.')[0]+".npz")
     loaded = np.load(lab_name)
     label_load = loaded["labels"]
     label = label_load.T
     tex = loaded["texture"]
+    
     
     
     choice2 = fps_single(points, 5000)
