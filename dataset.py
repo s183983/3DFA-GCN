@@ -136,7 +136,7 @@ class PrintDataset(Dataset):
         poly = np.array(dsa.WrapDataObject(reader.GetOutput()).Polygons)
         self.points = vertices
         self.faces = np.reshape(poly,(-1,4))[:,1:4]
-        self.pd = reader.GetOutput()
+        self.pd = pd
         if no_gt:
             self.no_gt = True
             
