@@ -111,7 +111,17 @@ class PrintDataset(Dataset):
         reader = vtk.vtkPolyDataReader()
         reader.SetFileName(file)
         reader.Update()
-        vertices = np.array(reader.GetOutput().GetPoints().GetData())
+        if no_gt:
+            decimator = vtk.vtkDecimatePro()
+            decimator = vtk.vtkQuadricDecimation()
+            decimator.SetInputData(reader.GetOutput())
+            decimator.SetTargetReduction(0.7)
+            decimator.Update()
+            pd = decimator.GetOutput()
+        else:
+            pd = reader.GetOutput()
+            
+        vertices = np.array(pd.GetPoints().GetData())
         
         lab_name = os.path.join(self.lab_dir,os.path.basename(file).split('.')[0]+".npz")
         loaded = np.load(lab_name)
@@ -129,6 +139,7 @@ class PrintDataset(Dataset):
         self.pd = reader.GetOutput()
         if no_gt:
             self.no_gt = True
+            
             
         else:
             self.no_gt = False
